@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "pistonclient",
+  "version": "${version}",
+  "name": "PistonClient",
+  "description": "My own minecraft client!",
+  "authors": [
+    "AlexProgrammerDE"
+  ],
+  "contact": {
+    "website": "https://pistonmaster.net/",
+    "repo": "https://github.com/AlexProgrammerDE/PistonClient.git"
+  },
+  "license": "MIT",
+  "icon": "assets/pistonclient/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "net.pistonmaster.pistonclient.PistonClient"
+    ]
+  },
+  "mixins": [
+    "PistonClient.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.1",
+    "fabric": "*",
+    "minecraft": "1.16.5"
+  }
+}
