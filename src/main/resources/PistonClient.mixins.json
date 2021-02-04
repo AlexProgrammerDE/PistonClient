@@ -7,7 +7,10 @@
   ],
   "client": [
     "TitleScreenAccessor",
-    "TitleScreenMixin"
+    "TitleScreenMixin",
+    "ServerScreenAccessor",
+    "ServerEntryAccessor",
+    "WidgetAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

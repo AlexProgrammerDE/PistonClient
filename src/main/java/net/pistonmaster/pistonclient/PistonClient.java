@@ -1,21 +1,24 @@
 package net.pistonmaster.pistonclient;
 
-import net.arikia.dev.drpc.DiscordEventHandlers;
-import net.arikia.dev.drpc.DiscordRPC;
-import net.arikia.dev.drpc.DiscordRichPresence;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
-import net.pistonmaster.pistonclient.discord.DisconnectEvent;
-import net.pistonmaster.pistonclient.discord.ErrorEvent;
-import net.pistonmaster.pistonclient.discord.ReadyEvent;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerServerListWidget;
+import net.minecraft.client.network.ServerInfo;
+import net.pistonmaster.pistonclient.cache.ServerMaxCache;
+import net.pistonmaster.pistonclient.discord.MessageTool;
+import net.pistonmaster.pistonclient.listeners.DisconnectListener;
 import net.pistonmaster.pistonclient.listeners.JoinListener;
+import net.pistonmaster.pistonclient.mixin.ServerEntryAccessor;
+import net.pistonmaster.pistonclient.mixin.ServerScreenAccessor;
+import net.pistonmaster.pistonclient.mixin.WidgetAccessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -30,31 +33,31 @@ public class PistonClient implements ClientModInitializer {
         logger.info("Starting PistonClient!");
 
         logger.info("Loading discord rpc!");
-        DiscordRPC.discordInitialize("806528088812945419",
-                new DiscordEventHandlers.Builder()
-                        .setReadyEventHandler(new ReadyEvent())
-                        .setErroredEventHandler(new ErrorEvent())
-                        .setDisconnectedEventHandler(new DisconnectEvent()).build(), true);
+        MessageTool.init();
 
-        final Thread callbackThread = new Thread(() -> new Timer().scheduleAtFixedRate(new TimerTask() {
+        ClientPlayConnectionEvents.JOIN.register(new JoinListener());
+
+        ClientPlayConnectionEvents.DISCONNECT.register(new DisconnectListener());
+
+        final Thread serverlistCrawlerThread = new Thread(() -> new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                DiscordRPC.discordRunCallbacks();
+                if (MinecraftClient.getInstance().currentScreen instanceof MultiplayerScreen) {
+                    List<MultiplayerServerListWidget.ServerEntry> list = ((WidgetAccessor) ((ServerScreenAccessor) MinecraftClient.getInstance().currentScreen).getWidget()).getServers();
+
+                    for (MultiplayerServerListWidget.ServerEntry entry : list) {
+                        ServerInfo info = ((ServerEntryAccessor) entry).getServer();
+
+                        if (info.online && !info.playerCountLabel.asString().isEmpty()) {
+                            ServerMaxCache.get().put(info.address, Integer.parseInt(info.playerCountLabel.getSiblings().get(1).asString()));
+                        }
+                    }
+                }
             }
         }, 0, TimeUnit.SECONDS.toMillis(1)));
 
-        callbackThread.setName("Discord callback thread");
+        serverlistCrawlerThread.setName("Serverlist crawler thread");
 
-        callbackThread.start();
-
-        DiscordRichPresence.Builder rich = new DiscordRichPresence.Builder("Currently developing a mod.").setDetails("Nice little client.");
-
-        // rich.setSecrets("10b10t.org", "10b10t.org");
-
-        rich.setParty("10b10t.org", 1, 2020);
-
-        DiscordRPC.discordUpdatePresence(rich.build());
-
-        ClientPlayConnectionEvents.JOIN.register(new JoinListener());
+        serverlistCrawlerThread.start();
     }
 }
