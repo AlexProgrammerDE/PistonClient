@@ -3,20 +3,28 @@ package net.pistonmaster.pistonclient.discord;
 import de.jcm.discordgamesdk.Core;
 import de.jcm.discordgamesdk.CreateParams;
 import de.jcm.discordgamesdk.activity.Activity;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerWarningScreen;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.UUID;
 
 public class MessageTool {
     private static Core usedCore = null;
 
     public static void setStatus(String detail, String state) {
+        if (usedCore == null) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         // Create the Activity
         try (Activity activity = new Activity()) {
-            activity.setDetails("Running an example");
-            activity.setState("and having fun");
+            activity.setDetails(detail);
+            activity.setState(state);
 
             // Setting a start time causes an "elapsed" field to appear
             activity.timestamps().setStart(Instant.now());
@@ -31,6 +39,39 @@ public class MessageTool {
             // Setting a join secret and a party ID causes an "Ask to Join" button to appear
             activity.party().setID("Party!");
             activity.secrets().setJoinSecret("Join!");
+
+            // Finally, update the current activity to our activity
+            usedCore.activityManager().updateActivity(activity);
+        }
+    }
+
+    public static void setParty(String detail, String state, int people, int max, String serverAddress, Instant join) {
+        if (usedCore == null) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Create the Activity
+        try (Activity activity = new Activity()) {
+            activity.setDetails(detail);
+            activity.setState(state);
+
+            // Setting a start time causes an "elapsed" field to appear
+            activity.timestamps().setStart(join);
+
+            // We are in a party with 10 out of 100 people.
+            activity.party().size().setMaxSize(max);
+            activity.party().size().setCurrentSize(people);
+
+            // Make a "cool" image show up
+            activity.assets().setLargeImage("default");
+
+            // Setting a join secret and a party ID causes an "Ask to Join" button to appear
+            activity.party().setID(UUID.randomUUID().toString());
+            activity.secrets().setJoinSecret(serverAddress);
 
             // Finally, update the current activity to our activity
             usedCore.activityManager().updateActivity(activity);
@@ -54,6 +95,9 @@ public class MessageTool {
                 try (CreateParams params = new CreateParams()) {
                     params.setClientID(806528088812945419L);
                     params.setFlags(CreateParams.getDefaultFlags());
+
+                    params.registerEventHandler(new EventAdapter());
+
                     // Create the Core
                     try (Core core = new Core(params)) {
                         usedCore = core;

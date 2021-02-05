@@ -34,6 +34,7 @@ public class PistonClient implements ClientModInitializer {
 
         logger.info("Loading discord rpc!");
         MessageTool.init();
+        MessageTool.setStatus("Nice little client.", "deving");
 
         ClientPlayConnectionEvents.JOIN.register(new JoinListener());
 

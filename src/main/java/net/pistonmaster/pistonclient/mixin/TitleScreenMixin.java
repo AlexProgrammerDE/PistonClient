@@ -5,15 +5,14 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.text.Text;
+import net.pistonmaster.pistonclient.screens.JoinWarningScreen;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
@@ -32,7 +31,7 @@ public abstract class TitleScreenMixin {
     @Inject(method = "initWidgetsNormal(II)V", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     public void setupPistonClientButton(int y, int spacingY, CallbackInfo ci, boolean bl, ButtonWidget.TooltipSupplier tooltipSupplier) {
         ((ScreenAccessor) this).addButtonInvoker(new ButtonWidget(((Screen) (Object) this).width / 2 - 100, y + spacingY * 3, 200, 20, Text.of("PistonClient Settings"), buttonWidget ->
-                System.out.println(1), tooltipSupplier)
+                MinecraftClient.getInstance().openScreen(new JoinWarningScreen(MinecraftClient.getInstance().currentScreen, "10b10t.org")), tooltipSupplier)
         ).active = bl;
     }
 
