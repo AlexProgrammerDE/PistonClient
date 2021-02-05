@@ -3,6 +3,7 @@ package net.pistonmaster.pistonclient.discord;
 import de.jcm.discordgamesdk.Core;
 import de.jcm.discordgamesdk.CreateParams;
 import de.jcm.discordgamesdk.activity.Activity;
+import net.pistonmaster.pistonclient.PistonClient;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +12,8 @@ import java.util.UUID;
 
 public class MessageTool {
     private static Core usedCore = null;
+
+    private MessageTool() {}
 
     public static void setStatus(String detail, String state) {
         if (usedCore == null) {
@@ -27,18 +30,10 @@ public class MessageTool {
             activity.setState(state);
 
             // Setting a start time causes an "elapsed" field to appear
-            activity.timestamps().setStart(Instant.now());
-
-            // We are in a party with 10 out of 100 people.
-            activity.party().size().setMaxSize(100);
-            activity.party().size().setCurrentSize(10);
+            activity.timestamps().setStart(PistonClient.clientStart);
 
             // Make a "cool" image show up
-            activity.assets().setLargeImage("test");
-
-            // Setting a join secret and a party ID causes an "Ask to Join" button to appear
-            activity.party().setID("Party!");
-            activity.secrets().setJoinSecret("Join!");
+            activity.assets().setLargeImage("default");
 
             // Finally, update the current activity to our activity
             usedCore.activityManager().updateActivity(activity);

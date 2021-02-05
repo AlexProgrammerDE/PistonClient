@@ -4,6 +4,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.pistonmaster.pistonclient.cache.ServerMaxCache;
+import net.pistonmaster.pistonclient.discord.MessageTool;
 
 import java.time.Instant;
 import java.util.Timer;
@@ -20,17 +22,7 @@ public class JoinListener implements ClientPlayConnectionEvents.Join {
             public void run() {
                 String serverName = handler.getConnection().getAddress().toString().split("/")[0];
 
-                /*
-
-                DiscordRichPresence.Builder rich = new DiscordRichPresence.Builder(serverName).setDetails("Nice little mod.").setBigImage("default", "PistonClient");
-
-                rich.setParty(serverName, handler.getPlayerUuids().size(), ServerMaxCache.get().get(serverName));
-
-                rich.setSecrets(Base64.encode(serverName.getBytes()), Base64.encode(serverName.getBytes()));
-
-                DiscordRPC.discordUpdatePresence(rich.build());
-
-                 */
+                MessageTool.setParty("Nice little client.", serverName, handler.getPlayerUuids().size(), ServerMaxCache.get().get(serverName), serverName, joinTime);
             }
         }, 0, TimeUnit.SECONDS.toMillis(1)));
 

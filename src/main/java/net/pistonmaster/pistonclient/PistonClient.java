@@ -18,6 +18,7 @@ import net.pistonmaster.pistonclient.mixin.WidgetAccessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 @Environment(EnvType.CLIENT)
 public class PistonClient implements ClientModInitializer {
     public static final Logger logger = LogManager.getLogger("PistonClient");
+    public static final Instant clientStart = Instant.now();
 
     @Override
     public void onInitializeClient() {
