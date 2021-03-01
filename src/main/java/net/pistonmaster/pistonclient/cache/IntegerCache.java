@@ -9,7 +9,11 @@ public abstract class IntegerCache {
         map.put(str, integer);
     }
 
-    public int get(String str) {
-        return map.get(str);
+    public Integer get(String str) {
+        try {
+            return map.get(str);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

@@ -9,5 +9,5 @@ import java.util.List;
 @Mixin(MultiplayerServerListWidget.class)
 public interface WidgetAccessor {
     @Accessor("servers")
-    public List<MultiplayerServerListWidget.ServerEntry> getServers();
+    List<MultiplayerServerListWidget.ServerEntry> getServers();
 }

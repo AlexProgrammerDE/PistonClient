@@ -8,5 +8,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(MultiplayerScreen.class)
 public interface ServerScreenAccessor {
     @Accessor("serverListWidget")
-    public MultiplayerServerListWidget getWidget();
+    MultiplayerServerListWidget getWidget();
 }

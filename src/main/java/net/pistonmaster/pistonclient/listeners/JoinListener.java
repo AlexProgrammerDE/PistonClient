@@ -13,21 +13,36 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class JoinListener implements ClientPlayConnectionEvents.Join {
+    protected static Thread serverUpdateThread = null;
+    protected static boolean shouldTick = false;
+
     @Override
     public void onPlayReady(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {
         Instant joinTime = Instant.now();
+        shouldTick = true;
 
-        final Thread serverUpdateThread = new Thread(() -> new Timer().scheduleAtFixedRate(new TimerTask() {
+        serverUpdateThread = new Thread(() -> new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 String serverName = handler.getConnection().getAddress().toString().split("/")[0];
 
-                MessageTool.setParty("Nice little client.", serverName, handler.getPlayerUuids().size(), ServerMaxCache.get().get(serverName), serverName, joinTime);
+                if (shouldTick)
+                    MessageTool.setParty("Nice little client.", serverName, normalize(handler.getPlayerUuids().size()), normalize(ServerMaxCache.get().get(serverName)), serverName, joinTime);
             }
-        }, 0, TimeUnit.SECONDS.toMillis(1)));
+        }, 20, TimeUnit.SECONDS.toMillis(1)));
 
         serverUpdateThread.setName("Server update thread");
 
         serverUpdateThread.start();
+    }
+
+    private int normalize(Integer i) {
+        if (i == null)
+            i = 1;
+
+        if (i < 1)
+            i = 1;
+
+        return i;
     }
 }

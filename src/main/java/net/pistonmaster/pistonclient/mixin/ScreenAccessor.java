@@ -8,5 +8,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(Screen.class)
 public interface ScreenAccessor {
     @Invoker("addButton")
-    public <T extends AbstractButtonWidget> T addButtonInvoker(T button);
+    <T extends AbstractButtonWidget> T addButtonInvoker(T button);
 }

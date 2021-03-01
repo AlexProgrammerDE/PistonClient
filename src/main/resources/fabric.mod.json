@@ -9,6 +9,8 @@
   ],
   "contact": {
     "website": "https://pistonmaster.net/",
+    "homepage": "https://pistonmaster.net/",
+    "issues": "https://github.com/AlexProgrammerDE/PistonClient/issues",
     "repo": "https://github.com/AlexProgrammerDE/PistonClient.git"
   },
   "license": "MIT",

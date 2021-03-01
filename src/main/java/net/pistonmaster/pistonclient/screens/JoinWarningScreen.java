@@ -5,7 +5,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConnectScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
-import net.minecraft.client.gui.screen.options.OptionsScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.util.NarratorManager;
@@ -14,10 +13,15 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 public class JoinWarningScreen extends Screen {
-    private final Screen parent;
     private static final Text HEADER;
-    private final Text message;
+
+    static {
+        HEADER = Text.of("Discord joining warning!").copy().formatted(Formatting.BOLD);
+    }
+
     public final String servername;
+    private final Screen parent;
+    private final Text message;
     private class_5489 lines;
 
     public JoinWarningScreen(Screen parent, String serverName) {
@@ -50,9 +54,5 @@ public class JoinWarningScreen extends Screen {
         this.textRenderer.getClass();
         var10000.method_30893(matrices, 25, 70, 9 * 2, 16777215);
         super.render(matrices, mouseX, mouseY, delta);
-    }
-
-    static {
-        HEADER = Text.of("Discord joining warning!").copy().formatted(Formatting.BOLD);
     }
 }

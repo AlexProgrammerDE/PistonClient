@@ -10,7 +10,6 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerServerListWidget;
 import net.minecraft.client.network.ServerInfo;
 import net.pistonmaster.pistonclient.cache.ServerMaxCache;
 import net.pistonmaster.pistonclient.discord.MessageTool;
-import net.pistonmaster.pistonclient.listeners.DisconnectListener;
 import net.pistonmaster.pistonclient.listeners.JoinListener;
 import net.pistonmaster.pistonclient.mixin.ServerEntryAccessor;
 import net.pistonmaster.pistonclient.mixin.ServerScreenAccessor;
@@ -40,8 +39,6 @@ public class PistonClient implements ClientModInitializer {
 
         ClientPlayConnectionEvents.JOIN.register(new JoinListener());
 
-        ClientPlayConnectionEvents.DISCONNECT.register(new DisconnectListener());
-
         final Thread serverlistCrawlerThread = new Thread(() -> new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -62,5 +59,8 @@ public class PistonClient implements ClientModInitializer {
         serverlistCrawlerThread.setName("Serverlist crawler thread");
 
         serverlistCrawlerThread.start();
+
+        logger.info("Initializing modules");
+
     }
 }

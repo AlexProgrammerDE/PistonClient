@@ -8,12 +8,15 @@ import net.pistonmaster.pistonclient.PistonClient;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MessageTool {
-    private static Core usedCore = null;
+    protected static Core usedCore = null;
 
-    private MessageTool() {}
+    private MessageTool() {
+    }
 
     public static void setStatus(String detail, String state) {
         if (usedCore == null) {
@@ -37,6 +40,8 @@ public class MessageTool {
 
             // Finally, update the current activity to our activity
             usedCore.activityManager().updateActivity(activity);
+
+            PistonClient.logger.info("a");
         }
     }
 
@@ -65,7 +70,7 @@ public class MessageTool {
             activity.assets().setLargeImage("default");
 
             // Setting a join secret and a party ID causes an "Ask to Join" button to appear
-            activity.party().setID(UUID.randomUUID().toString());
+            activity.party().setID("server!");
             activity.secrets().setJoinSecret(serverAddress);
 
             // Finally, update the current activity to our activity
@@ -86,22 +91,14 @@ public class MessageTool {
             Core.init(discordLibrary);
 
             new Thread(() -> {
-                // Set parameters for the Core
-                try (CreateParams params = new CreateParams()) {
-                    params.setClientID(806528088812945419L);
-                    params.setFlags(CreateParams.getDefaultFlags());
+                ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+                CreateParams params = new CreateParams();
+                params.setClientID(806528088812945419L);
+                params.registerEventHandler(new EventAdapter());
+                params.setFlags(CreateParams.getDefaultFlags());
+                usedCore = new Core(params);
 
-                    params.registerEventHandler(new EventAdapter());
-
-                    // Create the Core
-                    try (Core core = new Core(params)) {
-                        usedCore = core;
-                        while (true) {
-                            core.runCallbacks();
-                        }
-                    }
-                }
-
+                executor.scheduleAtFixedRate(usedCore::runCallbacks, 0, 16, TimeUnit.MILLISECONDS);
             }).start();
         } catch (IOException e) {
             e.printStackTrace();
