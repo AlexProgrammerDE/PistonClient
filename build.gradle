@@ -45,7 +45,7 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation include("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
 
-    implementation 'com.github.JnCrMx:discord-game-sdk4j:v0.5'
+    implementation include('com.github.JnCrMx:discord-game-sdk4j:v0.5')
     modImplementation include("com.github.TerraformersMC:ModMenu:v1.16.5")
 
     implementation 'commons-validator:commons-validator:1.7'
