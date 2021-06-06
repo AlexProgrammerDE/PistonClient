@@ -10,10 +10,6 @@ public abstract class IntegerCache {
     }
 
     public Integer get(String str) {
-        try {
-            return map.get(str);
-        } catch (Exception e) {
-            return null;
-        }
+        return map.getOrDefault(str, null);
     }
 }

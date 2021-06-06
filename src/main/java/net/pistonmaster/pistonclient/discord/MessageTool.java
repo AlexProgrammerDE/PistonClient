@@ -40,8 +40,6 @@ public class MessageTool {
 
             // Finally, update the current activity to our activity
             usedCore.activityManager().updateActivity(activity);
-
-            PistonClient.logger.info("a");
         }
     }
 
@@ -59,14 +57,11 @@ public class MessageTool {
             activity.setDetails(detail);
             activity.setState(state);
 
-            // Setting a start time causes an "elapsed" field to appear
             activity.timestamps().setStart(join);
 
-            // We are in a party with 10 out of 100 people.
             activity.party().size().setMaxSize(max);
             activity.party().size().setCurrentSize(people);
 
-            // Make a "cool" image show up
             activity.assets().setLargeImage("default");
 
             // Setting a join secret and a party ID causes an "Ask to Join" button to appear

@@ -17,7 +17,7 @@ public class ClientSettingsScreen extends Screen {
 
     @Override
     protected void init() {
-        /**
+        /*
          this.addButton(new ButtonWidget(this.width / 2 - 155, this.height / 6 + 48 - 6, 150, 20, new TranslatableText("options.skinCustomisation"), button ->
          this.client.openScreen(new ClientSettingsScreen(this))));
          this.addButton(new ButtonWidget(this.width / 2 + 5, this.height / 6 + 48 - 6, 150, 20, new TranslatableText("options.sounds"), button ->

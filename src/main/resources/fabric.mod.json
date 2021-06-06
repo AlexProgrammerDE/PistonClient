@@ -19,6 +19,9 @@
   "entrypoints": {
     "client": [
       "net.pistonmaster.pistonclient.PistonClient"
+    ],
+    "modmenu": [
+      "net.pistonmaster.pistonclient.modmenu.ConfigScreen"
     ]
   },
   "mixins": [
