@@ -3,12 +3,17 @@ package net.pistonmaster.pistonclient;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerServerListWidget;
 import net.minecraft.client.network.ServerInfo;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 import net.pistonmaster.pistonclient.cache.ServerMaxCache;
+import net.pistonmaster.pistonclient.core.MainHUD;
 import net.pistonmaster.pistonclient.discord.MessageTool;
 import net.pistonmaster.pistonclient.listeners.JoinListener;
 import net.pistonmaster.pistonclient.mixin.ServerEntryAccessor;
@@ -16,6 +21,7 @@ import net.pistonmaster.pistonclient.mixin.ServerScreenAccessor;
 import net.pistonmaster.pistonclient.mixin.WidgetAccessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.glfw.GLFW;
 
 import java.time.Instant;
 import java.util.List;
@@ -27,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 public class PistonClient implements ClientModInitializer {
     public static final Logger logger = LogManager.getLogger("PistonClient");
     public static final Instant clientStart = Instant.now();
+    private KeyBinding keyBinding;
+    private MainHUD gui;
 
     @Override
     public void onInitializeClient() {
@@ -61,6 +69,20 @@ public class PistonClient implements ClientModInitializer {
         serverlistCrawlerThread.start();
 
         logger.info("Initializing modules");
+        gui = new MainHUD();
 
+        /*
+        keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.pistonclient.gui",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_O,
+                "key.categories.ui"
+        ));
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            while (keyBinding.wasPressed()) {
+                gui.enterGUI();
+            }
+        });*/
     }
 }

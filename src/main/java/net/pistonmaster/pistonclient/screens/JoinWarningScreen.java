@@ -51,11 +51,6 @@ public class JoinWarningScreen extends Screen {
     }
 
     @Override
-    public String getNarrationMessage() {
-        return proceedText.getString();
-    }
-
-    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackgroundTexture(0);
         drawTextWithShadow(matrices, this.textRenderer, HEADER, 25, 30, 16777215);
