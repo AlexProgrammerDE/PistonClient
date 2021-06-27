@@ -13,8 +13,9 @@ import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.pistonmaster.pistonclient.cache.ServerMaxCache;
-import net.pistonmaster.pistonclient.core.MainHUD;
 import net.pistonmaster.pistonclient.discord.MessageTool;
+import net.pistonmaster.pistonclient.gui.SettingsGUI;
+import net.pistonmaster.pistonclient.gui.SettingsScreen;
 import net.pistonmaster.pistonclient.listeners.JoinListener;
 import net.pistonmaster.pistonclient.mixin.ServerEntryAccessor;
 import net.pistonmaster.pistonclient.mixin.ServerScreenAccessor;
@@ -34,7 +35,6 @@ public class PistonClient implements ClientModInitializer {
     public static final Logger logger = LogManager.getLogger("PistonClient");
     public static final Instant clientStart = Instant.now();
     private KeyBinding keyBinding;
-    private MainHUD gui;
 
     @Override
     public void onInitializeClient() {
@@ -47,7 +47,7 @@ public class PistonClient implements ClientModInitializer {
 
         ClientPlayConnectionEvents.JOIN.register(new JoinListener());
 
-        final Thread serverlistCrawlerThread = new Thread(() -> new Timer().scheduleAtFixedRate(new TimerTask() {
+        final var serverlistCrawlerThread = new Thread(() -> new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 if (MinecraftClient.getInstance().currentScreen instanceof MultiplayerScreen) {
@@ -69,9 +69,6 @@ public class PistonClient implements ClientModInitializer {
         serverlistCrawlerThread.start();
 
         logger.info("Initializing modules");
-        gui = new MainHUD();
-
-        /*
         keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.pistonclient.gui",
                 InputUtil.Type.KEYSYM,
@@ -81,8 +78,8 @@ public class PistonClient implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (keyBinding.wasPressed()) {
-                gui.enterGUI();
+                MinecraftClient.getInstance().openScreen(new SettingsScreen(new SettingsGUI()));
             }
-        });*/
+        });
     }
 }

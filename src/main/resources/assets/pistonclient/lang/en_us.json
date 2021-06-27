@@ -1,3 +1,5 @@
 {
-  "key.pistonclient.gui": "PistonClient HUD"
+  "key.pistonclient.gui": "PistonClient HUD",
+  "gui.pistonclient.discordrpc": "Discord RPC",
+  "gui.pistonclient.settings": "PistonClient Settings"
 }

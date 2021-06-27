@@ -1,7 +1,7 @@
-package net.pistonmaster.pistonclient.core;
+package net.pistonmaster.pistonclient.gui;
 
-import net.pistonmaster.pistonclient.core.modules.Module;
-import net.pistonmaster.pistonclient.core.modules.test.TestModule;
+import net.pistonmaster.pistonclient.gui.modules.Module;
+import net.pistonmaster.pistonclient.gui.modules.test.TestModule;
 
 import java.util.Arrays;
 import java.util.List;

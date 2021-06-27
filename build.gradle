@@ -33,6 +33,10 @@ repositories {
         name = 'sonatype-repo'
         url = 'https://oss.sonatype.org/content/repositories/snapshots'
     }
+    maven {
+        name = 'terraformersmc-repo'
+        url = 'https://maven.terraformersmc.com/releases/'
+    }
     mavenCentral()
     google()
 }
@@ -49,7 +53,8 @@ dependencies {
             "fabric-command-api-v1",
             "fabric-lifecycle-events-v1",
             "fabric-key-binding-api-v1",
-            "fabric-networking-api-v1"
+            "fabric-networking-api-v1",
+            "fabric-registry-sync-v0"
     ]
 
     // Add each module as a dependency
@@ -57,15 +62,15 @@ dependencies {
         include(modImplementation(fabricApi.module(it, project.fabric_version)))
     }
 
-    shadow 'com.github.JnCrMx:discord-game-sdk4j:v0.5'
-    shadow 'commons-validator:commons-validator:1.7'
-    shadow 'com.lukflug:panelstudio:0.1.11'
-    shadow 'com.lukflug:panelstudio-mc16:0.1.9'
+    modImplementation include("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
 
-    modImplementation include("com.github.TerraformersMC:ModMenu:v1.16.5")
+    shadow modRuntime('com.github.JnCrMx:discord-game-sdk4j:v0.5')
+    shadow modRuntime('commons-validator:commons-validator:1.7')
 
-    modImplementation include('net.earthcomputer.multiconnect:multiconnect-api:1.3.36')
-    modRuntime include('net.earthcomputer.multiconnect:multiconnect:1.3.36')
+    modImplementation include("com.terraformersmc:modmenu:2.0.0-beta.7")
+    modImplementation include("io.github.cottonmc:LibGui:4.0.0+1.17")
+    modImplementation include('net.earthcomputer.multiconnect:multiconnect-api:1.4.1')
+    modRuntime include('net.earthcomputer.multiconnect:multiconnect:1.4.1')
 
     /*
     modImplementation include("com.github.cabaletta:baritone:v1.6.3") {

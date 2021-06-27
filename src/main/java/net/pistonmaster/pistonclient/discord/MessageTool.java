@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MessageTool {
     protected static Core usedCore = null;
+    private static boolean activated = true;
 
     private MessageTool() {
     }
@@ -93,12 +94,25 @@ public class MessageTool {
                 params.setFlags(CreateParams.getDefaultFlags());
                 usedCore = new Core(params);
 
-                executor.scheduleAtFixedRate(usedCore::runCallbacks, 0, 16, TimeUnit.MILLISECONDS);
+                executor.scheduleAtFixedRate(() -> {
+                    if (!isActivated())
+                        return;
+
+                    usedCore.runCallbacks();
+                }, 0, 16, TimeUnit.MILLISECONDS);
             }).start();
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Error downloading Discord SDK.");
             System.exit(-1);
         }
+    }
+
+    public static void setActivated(boolean activated) {
+        MessageTool.activated = activated;
+    }
+
+    public static boolean isActivated() {
+        return activated;
     }
 }

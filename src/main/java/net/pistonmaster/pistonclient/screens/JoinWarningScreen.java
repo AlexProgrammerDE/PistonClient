@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.ConnectScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
@@ -46,8 +47,8 @@ public class JoinWarningScreen extends Screen {
         this.textRenderer.getClass();
         int i = var10000 * 9 * 2;
 
-        this.addButton(new ButtonWidget(this.width / 2 - 155, 100 + i, 150, 20, ScreenTexts.PROCEED, buttonWidget -> this.client.openScreen(new ConnectScreen(this.parent, MinecraftClient.getInstance(), new ServerInfo("server", serverName, false)))));
-        this.addButton(new ButtonWidget(this.width / 2 - 155 + 160, 100 + i, 150, 20, ScreenTexts.BACK, buttonWidget -> this.client.openScreen(this.parent)));
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 155, 100 + i, 150, 20, ScreenTexts.PROCEED, buttonWidget -> ConnectScreen.connect(this.parent, MinecraftClient.getInstance(), ServerAddress.parse(serverName), new ServerInfo("server", serverName, false))));
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 155 + 160, 100 + i, 150, 20, ScreenTexts.BACK, buttonWidget -> this.client.openScreen(this.parent)));
     }
 
     @Override

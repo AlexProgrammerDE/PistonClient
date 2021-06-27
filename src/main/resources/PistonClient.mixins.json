@@ -2,15 +2,14 @@
   "required": true,
   "minVersion": "0.8",
   "package": "net.pistonmaster.pistonclient.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_16",
   "mixins": [
   ],
   "client": [
     "TitleScreenMixin",
     "ServerScreenAccessor",
     "ServerEntryAccessor",
-    "WidgetAccessor",
-    "ScreenAccessor"
+    "WidgetAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
