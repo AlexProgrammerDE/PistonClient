@@ -69,7 +69,7 @@ dependencies {
 
     modImplementation include("com.terraformersmc:modmenu:2.0.0-beta.7")
     modImplementation include("io.github.cottonmc:LibGui:4.0.0+1.17")
-    modImplementation include('net.earthcomputer.multiconnect:multiconnect-api:1.4.1')
+    modImplementation include('net.earthcomputer.multiconnect:multiconnect-api:1.5.10')
     modRuntime include('net.earthcomputer.multiconnect:multiconnect:1.5.10')
 
     /*
