@@ -2,7 +2,7 @@ plugins {
     id 'fabric-loom' version '0.8-SNAPSHOT'
     id 'maven-publish'
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
