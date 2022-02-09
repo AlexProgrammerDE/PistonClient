@@ -34,7 +34,7 @@ public class ClientSettingsScreen extends Screen {
          this.client.openScreen(new ClientSettingsScreen(this))));
          */
         this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height / 6 + 168, 200, 20, ScreenTexts.DONE, (button) ->
-                this.client.openScreen(this.parent)));
+                this.client.setScreen(this.parent)));
     }
 
     @Override

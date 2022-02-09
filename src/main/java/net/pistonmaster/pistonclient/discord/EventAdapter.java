@@ -9,7 +9,7 @@ import net.pistonmaster.pistonclient.screens.JoinWarningScreen;
 public class EventAdapter extends DiscordEventAdapter {
     @Override
     public void onActivityJoin(String secret) {
-        MinecraftClient.getInstance().openScreen(new JoinWarningScreen(MinecraftClient.getInstance().currentScreen, secret));
+        MinecraftClient.getInstance().setScreen(new JoinWarningScreen(MinecraftClient.getInstance().currentScreen, secret));
     }
 
     @Override

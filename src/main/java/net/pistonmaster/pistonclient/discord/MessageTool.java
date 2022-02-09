@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MessageTool {
     protected static Core usedCore = null;
-    private static boolean activated = true;
+    private static volatile boolean activated = true;
 
     private MessageTool() {
     }
@@ -108,11 +108,11 @@ public class MessageTool {
         }
     }
 
-    public static void setActivated(boolean activated) {
-        MessageTool.activated = activated;
-    }
-
     public static boolean isActivated() {
         return activated;
+    }
+
+    public static void setActivated(boolean activated) {
+        MessageTool.activated = activated;
     }
 }

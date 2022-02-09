@@ -1,22 +1,87 @@
 package net.pistonmaster.pistonclient.listeners;
 
+import com.github.steveice10.mc.protocol.MinecraftConstants;
+import com.github.steveice10.mc.protocol.MinecraftProtocol;
+import com.github.steveice10.mc.protocol.data.status.ServerStatusInfo;
+import com.github.steveice10.mc.protocol.data.status.handler.ServerInfoHandler;
+import com.github.steveice10.packetlib.Session;
+import com.github.steveice10.packetlib.event.session.*;
+import com.github.steveice10.packetlib.packet.Packet;
+import com.github.steveice10.packetlib.tcp.TcpClientSession;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.pistonmaster.pistonclient.cache.ServerMaxCache;
 import net.pistonmaster.pistonclient.discord.MessageTool;
 import org.apache.commons.validator.routines.DomainValidator;
 
 import java.net.InetSocketAddress;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class JoinListener implements ClientPlayConnectionEvents.Join {
     private static final String[] domainOptions = {"connect.", "play.", "mc."};
+    private final Map<String, ServerStatusInfo> maxMap = new ConcurrentHashMap<>();
     private Thread serverUpdateThread = null;
+
+    private static CompletableFuture<ServerStatusInfo> pingServer() {
+        CompletableFuture<ServerStatusInfo> future = new CompletableFuture<>();
+
+        MinecraftProtocol protocol = new MinecraftProtocol();
+        Session client = new TcpClientSession("6b6t.org", 25565, protocol);
+        client.setFlag(MinecraftConstants.SERVER_INFO_HANDLER_KEY, (ServerInfoHandler) (session, info) -> {
+            future.complete(info);
+            System.out.println("Version: " + info.getVersionInfo().getVersionName()
+                    + ", " + info.getVersionInfo().getProtocolVersion());
+            System.out.println("Player Count: " + info.getPlayerInfo().getOnlinePlayers()
+                    + " / " + info.getPlayerInfo().getMaxPlayers());
+            System.out.println("Players: " + Arrays.toString(info.getPlayerInfo().getPlayers()));
+            System.out.println("Description: " + info.getDescription());
+            System.out.println("Icon: " + Arrays.toString(info.getIconPng()));
+        });
+
+
+        client.addListener(new SessionListener() {
+            @Override
+            public void packetReceived(Session session, Packet packet) {
+            }
+
+            @Override
+            public void packetSending(PacketSendingEvent event) {
+            }
+
+            @Override
+            public void packetSent(Session session, Packet packet) {
+            }
+
+            @Override
+            public void packetError(PacketErrorEvent event) {
+                if (!future.isDone()) future.completeExceptionally(event.getCause());
+            }
+
+            @Override
+            public void connected(ConnectedEvent event) {
+            }
+
+            @Override
+            public void disconnecting(DisconnectingEvent event) {
+            }
+
+            @Override
+            public void disconnected(DisconnectedEvent event) {
+                if (!future.isDone()) future.completeExceptionally(event.getCause());
+            }
+        });
+        client.connect();
+
+        return future;
+    }
 
     @Override
     public void onPlayReady(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {
@@ -31,17 +96,21 @@ public class JoinListener implements ClientPlayConnectionEvents.Join {
         serverUpdateThread = new Thread(() -> {
             Timer timer = new Timer();
 
-            timer.scheduleAtFixedRate(new TimerTask() {
+            timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     if (handler.getConnection().isOpen()) {
-                        String serverName = normalizeName(((InetSocketAddress) handler.getConnection().getAddress()).getHostString().split("/")[0]);
+                        String serverName = ((InetSocketAddress) handler.getConnection().getAddress()).getHostString().split("/")[0];
 
-                        if (serverName.endsWith(".")) {
-                            serverName = serverName.substring(0, serverName.length() - 1);
+                        if (isPublic(serverName)) {
+                            if (!maxMap.containsKey(serverName)) {
+                                maxMap.put(serverName, pingServer().join());
+                            }
+
+                            ServerStatusInfo info = maxMap.get(serverName);
+
+                            MessageTool.setParty("Nice little client.", replaceAll(serverName), normalize(handler.getPlayerUuids().size()), info.getPlayerInfo().getMaxPlayers(), serverName, joinTime);
                         }
-
-                        MessageTool.setParty("Nice little client.", replaceAll(serverName), normalize(handler.getPlayerUuids().size()), normalize(getTillWorks(serverName)), serverName, joinTime);
                     } else {
                         MessageTool.setStatus("Nice little client.", "deving");
                         timer.cancel();
@@ -66,40 +135,8 @@ public class JoinListener implements ClientPlayConnectionEvents.Join {
         return i;
     }
 
-    private Integer getTillWorks(String domain) {
-        Integer firstTry = ServerMaxCache.get().get(domain);
-
-        if (firstTry != null)
-            return firstTry;
-
-        domain = replaceAll(domain);
-
-        Integer secondTry = ServerMaxCache.get().get(domain);
-
-        if (secondTry != null)
-            return secondTry;
-
-        for (String str : domainOptions) {
-            Integer nextTry = ServerMaxCache.get().get(str + domain);
-
-            if (nextTry != null) {
-                return nextTry;
-            }
-        }
-
-        return null;
-    }
-
-    private String normalizeName(String domain) {
-        if (DomainValidator.getInstance().isValid(domain)) {
-            if (startsWithArray(domain)) {
-                return domain;
-            } else {
-                return "redacted";
-            }
-        } else {
-            return "redacted";
-        }
+    private boolean isPublic(String domain) {
+        return DomainValidator.getInstance().isValid(domain) && startsWithArray(domain);
     }
 
     private boolean startsWithArray(String str) {

@@ -1,7 +1,10 @@
 package net.pistonmaster.pistonclient.gui;
 
 import io.github.cottonmc.cotton.gui.client.LightweightGuiDescription;
-import io.github.cottonmc.cotton.gui.widget.*;
+import io.github.cottonmc.cotton.gui.widget.WGridPanel;
+import io.github.cottonmc.cotton.gui.widget.WLabel;
+import io.github.cottonmc.cotton.gui.widget.WSprite;
+import io.github.cottonmc.cotton.gui.widget.WToggleButton;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.pistonmaster.pistonclient.discord.MessageTool;

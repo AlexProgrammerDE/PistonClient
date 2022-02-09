@@ -48,7 +48,7 @@ public class JoinWarningScreen extends Screen {
         int i = var10000 * 9 * 2;
 
         this.addDrawableChild(new ButtonWidget(this.width / 2 - 155, 100 + i, 150, 20, ScreenTexts.PROCEED, buttonWidget -> ConnectScreen.connect(this.parent, MinecraftClient.getInstance(), ServerAddress.parse(serverName), new ServerInfo("server", serverName, false))));
-        this.addDrawableChild(new ButtonWidget(this.width / 2 - 155 + 160, 100 + i, 150, 20, ScreenTexts.BACK, buttonWidget -> this.client.openScreen(this.parent)));
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 155 + 160, 100 + i, 150, 20, ScreenTexts.BACK, buttonWidget -> this.client.setScreen(this.parent)));
     }
 
     @Override
