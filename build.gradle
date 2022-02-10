@@ -1,8 +1,9 @@
+import java.util.function.Consumer
+
 plugins {
     id 'fabric-loom' version '0.11-SNAPSHOT'
     id 'maven-publish'
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
@@ -37,6 +38,8 @@ repositories {
     google()
 }
 
+configurations.create("runtime")
+
 dependencies {
     //to change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -55,14 +58,10 @@ dependencies {
 
     // Add each module as a dependency
     apiModules.forEach {
-        include(modImplementation(fabricApi.module(it, project.fabric_version)))
+        modImplementation include(fabricApi.module(it, project.fabric_version))
     }
 
     modImplementation include("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
-
-    shadow modRuntimeOnly('com.github.JnCrMx:discord-game-sdk4j:v0.5')
-    shadow modRuntimeOnly('commons-validator:commons-validator:1.7')
-    shadow modRuntimeOnly("com.github.GeyserMC:MCProtocolLib:1.18-2")
 
     modImplementation include("com.terraformersmc:modmenu:3.0.1")
     modImplementation include("io.github.cottonmc:LibGui:5.3.0+1.18")
@@ -70,11 +69,18 @@ dependencies {
     modImplementation include('net.earthcomputer.multiconnect:multiconnect-api:1.5.10') {
         transitive = false
     }
+
     modRuntimeOnly include('net.earthcomputer.multiconnect:multiconnect:1.5.10') {
         transitive = false
     }
 
-    modCompileOnly annotationProcessor('org.projectlombok:lombok:1.18.22')
+    modImplementation include("net.kyori:adventure-platform-fabric:5.0.0")
+
+    modImplementation runtime('com.github.JnCrMx:discord-game-sdk4j:v0.5')
+    modImplementation runtime('commons-validator:commons-validator:1.7')
+    modImplementation runtime("com.github.GeyserMC:MCProtocolLib:1.18-2")
+
+    annotationProcessor modCompileOnly('org.projectlombok:lombok:1.18.22')
 
     /*
     modImplementation include("com.github.cabaletta:baritone:v1.6.3") {
@@ -83,18 +89,44 @@ dependencies {
         exclude group: "net.java.jinput"
         exclude group: "net.sf.jopt-simple"
         exclude group: "org.ow2.asm"
-    }*/
-
-    modImplementation include("net.kyori:adventure-platform-fabric:5.0.0")
-
-    /*
-
+    }
 
     implementation 'com.github.ZeroMemes:Alpine:1.9'
     implementation 'me.xdrop:fuzzywuzzy:1.3.1'
-
     */
 }
+
+configurations.runtime.resolvedConfiguration.resolvedArtifacts
+
+def excluded = List.of(
+        "com.google.code.gson:gson"
+)
+
+def artifacts = new HashSet<String>()
+configurations.runtime.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
+    Consumer<ResolvedDependency> addDependency = null
+
+    addDependency = (ResolvedDependency resolvedDep) -> {
+        artifacts.add("${resolvedDep.module.id.group}:${resolvedDep.module.id.name}:${resolvedDep.module.id.version}")
+
+        resolvedDep.children.each { childResolvedDep ->
+            if (resolvedDep in childResolvedDep.getParents()
+                    && (childResolvedDep.getConfiguration() == 'runtime' || childResolvedDep.getConfiguration() == 'runtimeElements')) {
+                addDependency(childResolvedDep)
+            }
+        }
+    }
+    addDependency(dep)
+}
+artifacts.forEach(artifact -> {
+    for (String exclude in excluded) {
+        if (artifact.startsWith(exclude)) {
+            return
+        }
+    }
+
+    dependencies.include(artifact)
+})
 
 processResources {
     inputs.property "version", project.version
@@ -106,7 +138,7 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
     // Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-    it.options.release = 17
+    it.options.release.set(17)
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
     // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
@@ -125,15 +157,6 @@ jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}" }
     }
-}
-
-shadowJar {
-    configurations = [project.configurations.shadow]
-}
-
-remapJar {
-    dependsOn shadowJar
-    input.set shadowJar.archiveFile.get()
 }
 
 // configure the maven publication
