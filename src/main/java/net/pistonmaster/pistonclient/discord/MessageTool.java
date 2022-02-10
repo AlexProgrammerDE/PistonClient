@@ -13,20 +13,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class MessageTool {
-    protected static Core usedCore = null;
-    private static volatile boolean activated = true;
+    protected Core usedCore = null;
+    private volatile boolean activated = true;
 
-    private MessageTool() {
-    }
-
-    public static void setStatus(String detail, String state) {
-        if (usedCore == null) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public void setStatus(String detail, String state) {
+        if (usedCore == null)
+            return;
 
         // Create the Activity
         try (Activity activity = new Activity()) {
@@ -44,14 +36,9 @@ public class MessageTool {
         }
     }
 
-    public static void setParty(String detail, String state, int people, int max, String serverAddress, Instant join) {
-        if (usedCore == null) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public void setParty(String detail, String state, int people, int max, String serverAddress, Instant join) {
+        if (usedCore == null)
+            return;
 
         // Create the Activity
         try (Activity activity = new Activity()) {
@@ -74,7 +61,7 @@ public class MessageTool {
         }
     }
 
-    public static void init() {
+    public void init() {
         try {
             File discordLibrary = DownloadNativeLibrary.downloadDiscordLibrary();
 
@@ -108,11 +95,11 @@ public class MessageTool {
         }
     }
 
-    public static boolean isActivated() {
+    public boolean isActivated() {
         return activated;
     }
 
-    public static void setActivated(boolean activated) {
-        MessageTool.activated = activated;
+    public void setActivated(boolean activated) {
+        this.activated = activated;
     }
 }

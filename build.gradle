@@ -74,6 +74,8 @@ dependencies {
         transitive = false
     }
 
+    modCompileOnly annotationProcessor('org.projectlombok:lombok:1.18.22')
+
     /*
     modImplementation include("com.github.cabaletta:baritone:v1.6.3") {
         exclude group: "org.lwjgl"

@@ -1,5 +1,6 @@
 package net.pistonmaster.pistonclient;
 
+import lombok.Getter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,6 +25,8 @@ public class PistonClient implements ClientModInitializer {
     public static final Logger logger = LogManager.getLogger("PistonClient");
     public static final Instant clientStart = Instant.now();
     private KeyBinding keyBinding;
+    @Getter
+    private MessageTool messageTool = new MessageTool();
 
     @Override
     public void onInitializeClient() {
@@ -31,10 +34,10 @@ public class PistonClient implements ClientModInitializer {
         logger.info("Starting PistonClient!");
 
         logger.info("Loading discord rpc!");
-        MessageTool.init();
-        MessageTool.setStatus("Nice little client.", "deving");
+        messageTool.init();
+        messageTool.setStatus("Nice little client.", "deving");
 
-        ClientPlayConnectionEvents.JOIN.register(new JoinListener());
+        ClientPlayConnectionEvents.JOIN.register(new JoinListener(this));
 
         logger.info("Initializing modules");
         keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -46,7 +49,7 @@ public class PistonClient implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (keyBinding.wasPressed()) {
-                MinecraftClient.getInstance().setScreen(new SettingsScreen(new SettingsGUI()));
+                MinecraftClient.getInstance().setScreen(new SettingsScreen(new SettingsGUI(this)));
             }
         });
     }

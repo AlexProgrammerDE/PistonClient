@@ -8,11 +8,13 @@ import com.github.steveice10.packetlib.Session;
 import com.github.steveice10.packetlib.event.session.*;
 import com.github.steveice10.packetlib.packet.Packet;
 import com.github.steveice10.packetlib.tcp.TcpClientSession;
+import com.google.common.net.InternetDomainName;
+import lombok.RequiredArgsConstructor;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.pistonmaster.pistonclient.discord.MessageTool;
+import net.pistonmaster.pistonclient.PistonClient;
 import org.apache.commons.validator.routines.DomainValidator;
 
 import java.net.InetSocketAddress;
@@ -25,43 +27,30 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+@RequiredArgsConstructor
 public class JoinListener implements ClientPlayConnectionEvents.Join {
-    private static final String[] domainOptions = {"connect.", "play.", "mc."};
+    private static final String[] domainOptions = {"connect.", "play.", "mc.", ""};
     private final Map<String, ServerStatusInfo> maxMap = new ConcurrentHashMap<>();
-    private Thread serverUpdateThread = null;
+    private Timer updateTimer;
+    private final PistonClient pistonClient;
 
-    private static CompletableFuture<ServerStatusInfo> pingServer() {
+    private static CompletableFuture<ServerStatusInfo> pingServer(String serverHost, int port) {
         CompletableFuture<ServerStatusInfo> future = new CompletableFuture<>();
 
         MinecraftProtocol protocol = new MinecraftProtocol();
-        Session client = new TcpClientSession("6b6t.org", 25565, protocol);
+        Session client = new TcpClientSession(serverHost, port, protocol);
         client.setFlag(MinecraftConstants.SERVER_INFO_HANDLER_KEY, (ServerInfoHandler) (session, info) -> {
             future.complete(info);
-            System.out.println("Version: " + info.getVersionInfo().getVersionName()
-                    + ", " + info.getVersionInfo().getProtocolVersion());
-            System.out.println("Player Count: " + info.getPlayerInfo().getOnlinePlayers()
-                    + " / " + info.getPlayerInfo().getMaxPlayers());
-            System.out.println("Players: " + Arrays.toString(info.getPlayerInfo().getPlayers()));
-            System.out.println("Description: " + info.getDescription());
-            System.out.println("Icon: " + Arrays.toString(info.getIconPng()));
         });
-
 
         client.addListener(new SessionListener() {
             @Override
-            public void packetReceived(Session session, Packet packet) {
-            }
-
-            @Override
-            public void packetSending(PacketSendingEvent event) {
-            }
-
-            @Override
-            public void packetSent(Session session, Packet packet) {
-            }
-
-            @Override
             public void packetError(PacketErrorEvent event) {
+                if (!future.isDone()) future.completeExceptionally(event.getCause());
+            }
+
+            @Override
+            public void disconnected(DisconnectedEvent event) {
                 if (!future.isDone()) future.completeExceptionally(event.getCause());
             }
 
@@ -74,10 +63,18 @@ public class JoinListener implements ClientPlayConnectionEvents.Join {
             }
 
             @Override
-            public void disconnected(DisconnectedEvent event) {
-                if (!future.isDone()) future.completeExceptionally(event.getCause());
+            public void packetReceived(Session session, Packet packet) {
+            }
+
+            @Override
+            public void packetSending(PacketSendingEvent event) {
+            }
+
+            @Override
+            public void packetSent(Session session, Packet packet) {
             }
         });
+
         client.connect();
 
         return future;
@@ -85,58 +82,63 @@ public class JoinListener implements ClientPlayConnectionEvents.Join {
 
     @Override
     public void onPlayReady(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {
-        if (!(handler.getConnection().getAddress() instanceof InetSocketAddress)) return;
+        if (!(handler.getConnection().getAddress() instanceof InetSocketAddress address)) return;
 
-        if (serverUpdateThread != null) {
-            serverUpdateThread.stop();
+        if (updateTimer != null) {
+            updateTimer.cancel();
         }
 
         Instant joinTime = Instant.now();
 
-        serverUpdateThread = new Thread(() -> {
-            Timer timer = new Timer();
+        updateTimer = new Timer();
 
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if (handler.getConnection().isOpen()) {
-                        String serverName = ((InetSocketAddress) handler.getConnection().getAddress()).getHostString().split("/")[0];
+        updateTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (handler.getConnection().isOpen()) {
+                    String serverName = address.getHostString().split("/")[0];
 
-                        if (isPublic(serverName)) {
-                            if (!maxMap.containsKey(serverName)) {
-                                maxMap.put(serverName, pingServer().join());
-                            }
-
-                            ServerStatusInfo info = maxMap.get(serverName);
-
-                            MessageTool.setParty("Nice little client.", replaceAll(serverName), normalize(handler.getPlayerUuids().size()), info.getPlayerInfo().getMaxPlayers(), serverName, joinTime);
+                    if (isPublic(serverName)) {
+                        if (!maxMap.containsKey(serverName)) {
+                            maxMap.put(serverName, pingServer(serverName, address.getPort()).join());
                         }
+
+                        ServerStatusInfo info = maxMap.get(serverName);
+
+                        pistonClient.getMessageTool().setParty(
+                                "Nice little client.",
+                                replaceAll(serverName),
+                                info.getPlayerInfo().getOnlinePlayers(),
+                                info.getPlayerInfo().getMaxPlayers(),
+                                serverName,
+                                joinTime
+                        );
                     } else {
-                        MessageTool.setStatus("Nice little client.", "deving");
-                        timer.cancel();
-                        serverUpdateThread.stop();
+                        pistonClient.getMessageTool().setStatus("Nice little client.", "deving");
+                        cancel();
                     }
+                } else {
+                    pistonClient.getMessageTool().setStatus("Nice little client.", "deving");
+                    cancel();
                 }
-            }, 20, TimeUnit.SECONDS.toMillis(1));
-        });
-
-        serverUpdateThread.setName("Server update thread");
-
-        serverUpdateThread.start();
+            }
+        }, 20, TimeUnit.SECONDS.toMillis(1));
     }
 
-    private int normalize(Integer i) {
-        if (i == null)
-            i = 1;
-
-        if (i < 1)
-            i = 1;
-
-        return i;
-    }
-
+    @SuppressWarnings("UnstableApiUsage")
     private boolean isPublic(String domain) {
-        return DomainValidator.getInstance().isValid(domain) && startsWithArray(domain);
+        if (DomainValidator.getInstance().isValid(domain)) {
+            InternetDomainName publicSuffix = InternetDomainName.from(domain).publicSuffix();
+
+            if (publicSuffix != null) {
+                String withoutPublicSuffix = domain.replace(publicSuffix.toString(), "");
+                return startsWithArray(domain) || !withoutPublicSuffix.contains(".");
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     private boolean startsWithArray(String str) {
