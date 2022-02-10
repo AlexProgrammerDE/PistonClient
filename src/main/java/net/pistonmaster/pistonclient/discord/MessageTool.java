@@ -1,9 +1,11 @@
 package net.pistonmaster.pistonclient.discord;
 
+import com.google.gson.Gson;
 import de.jcm.discordgamesdk.Core;
 import de.jcm.discordgamesdk.CreateParams;
 import de.jcm.discordgamesdk.activity.Activity;
 import net.pistonmaster.pistonclient.PistonClient;
+import net.pistonmaster.pistonclient.data.ServerJoinRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +38,7 @@ public class MessageTool {
         }
     }
 
-    public void setParty(String detail, String state, int people, int max, String serverAddress, Instant join) {
+    public void setParty(String detail, String state, int people, int max, ServerJoinRequest request, Instant join) {
         if (usedCore == null)
             return;
 
@@ -54,7 +56,7 @@ public class MessageTool {
 
             // Setting a join secret and a party ID causes an "Ask to Join" button to appear
             activity.party().setID("server!");
-            activity.secrets().setJoinSecret(serverAddress);
+            activity.secrets().setJoinSecret(new Gson().toJson(request));
 
             // Finally, update the current activity to our activity
             usedCore.activityManager().updateActivity(activity);

@@ -15,11 +15,11 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.pistonmaster.pistonclient.PistonClient;
+import net.pistonmaster.pistonclient.data.ServerJoinRequest;
 import org.apache.commons.validator.routines.DomainValidator;
 
 import java.net.InetSocketAddress;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -104,13 +104,14 @@ public class JoinListener implements ClientPlayConnectionEvents.Join {
                         }
 
                         ServerStatusInfo info = maxMap.get(serverName);
+                        ServerJoinRequest request = new ServerJoinRequest(serverName, address.getPort());
 
                         pistonClient.getMessageTool().setParty(
                                 "Nice little client.",
                                 replaceAll(serverName),
                                 info.getPlayerInfo().getOnlinePlayers(),
                                 info.getPlayerInfo().getMaxPlayers(),
-                                serverName,
+                                request,
                                 joinTime
                         );
                     } else {
