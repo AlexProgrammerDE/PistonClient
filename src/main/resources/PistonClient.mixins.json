@@ -6,10 +6,7 @@
   "mixins": [
   ],
   "client": [
-    "TitleScreenMixin",
-    "ServerScreenAccessor",
-    "ServerEntryAccessor",
-    "WidgetAccessor"
+    "TitleScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
