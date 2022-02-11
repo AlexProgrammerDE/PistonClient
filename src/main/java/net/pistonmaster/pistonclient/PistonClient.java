@@ -7,13 +7,16 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.pistonmaster.pistonclient.data.ServerJoinRequest;
 import net.pistonmaster.pistonclient.discord.MessageTool;
 import net.pistonmaster.pistonclient.gui.SettingsGUI;
 import net.pistonmaster.pistonclient.gui.SettingsScreen;
 import net.pistonmaster.pistonclient.listeners.JoinListener;
+import net.pistonmaster.pistonclient.screens.JoinWarningScreen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
@@ -30,7 +33,7 @@ public class PistonClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        MinecraftClient.getInstance().getGame().onStartGameSession();
+        // MinecraftClient.getInstance().getGame().onStartGameSession();
         logger.info("Starting PistonClient!");
 
         logger.info("Loading discord rpc!");
@@ -49,7 +52,10 @@ public class PistonClient implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (keyBinding.wasPressed()) {
-                MinecraftClient.getInstance().setScreen(new SettingsScreen(new SettingsGUI(this)));
+                MinecraftClient.getInstance().execute(() -> {
+                    client.setScreen(new JoinWarningScreen(client.currentScreen));
+                });
+                // MinecraftClient.getInstance().setScreen(new SettingsScreen(new SettingsGUI(this)));
             }
         });
     }

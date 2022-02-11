@@ -14,7 +14,9 @@ public class EventAdapter extends DiscordEventAdapter {
         ServerJoinRequest request = new Gson().fromJson(secret, ServerJoinRequest.class);
         MinecraftClient client = MinecraftClient.getInstance();
 
-        client.setScreen(new JoinWarningScreen(client.currentScreen, request));
+        MinecraftClient.getInstance().execute(() -> {
+            client.setScreen(new JoinWarningScreen(client.currentScreen, request));
+        });
     }
 
     @Override

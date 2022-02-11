@@ -1,5 +1,6 @@
 package net.pistonmaster.pistonclient.screens;
 
+import net.earthcomputer.multiconnect.connect.ServersExt;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.MultilineText;
 import net.minecraft.client.gui.screen.ConnectScreen;
@@ -30,7 +31,7 @@ public class JoinWarningScreen extends Screen {
     private MultilineText lines;
 
     public JoinWarningScreen(Screen parent) {
-        this(parent, new ServerJoinRequest("openanarchy.org", 25565));
+        this(parent, new ServerJoinRequest("openanarchy.org", 25565, 340));
     }
 
     public JoinWarningScreen(Screen parent, ServerJoinRequest request) {
@@ -49,8 +50,12 @@ public class JoinWarningScreen extends Screen {
         int var10000 = this.lines.count() + 1;
         Objects.requireNonNull(this.textRenderer);
         int i = var10000 * 9 * 2;
+        ServerInfo info = request.toServerInfo();
 
-        this.addDrawableChild(new ButtonWidget(this.width / 2 - 155, 100 + i, 150, 20, ScreenTexts.PROCEED, buttonWidget -> ConnectScreen.connect(this.parent, MinecraftClient.getInstance(), ServerAddress.parse(request.format()), new ServerInfo("server", request.format(), false))));
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 155, 100 + i, 150, 20, ScreenTexts.PROCEED, buttonWidget -> {
+            ServersExt.getInstance().getOrCreateServer(info.address).forcedProtocol = request.getProtocol();
+            ConnectScreen.connect(this.parent, MinecraftClient.getInstance(), ServerAddress.parse(info.address), info);
+        }));
         this.addDrawableChild(new ButtonWidget(this.width / 2 - 155 + 160, 100 + i, 150, 20, ScreenTexts.BACK, buttonWidget -> this.client.setScreen(this.parent)));
     }
 

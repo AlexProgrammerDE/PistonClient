@@ -70,7 +70,7 @@ dependencies {
         transitive = false
     }
 
-    modRuntimeOnly include('net.earthcomputer.multiconnect:multiconnect:1.5.10') {
+    modImplementation include('net.earthcomputer.multiconnect:multiconnect:1.5.10') {
         transitive = false
     }
 

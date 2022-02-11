@@ -10,6 +10,7 @@ import com.github.steveice10.packetlib.packet.Packet;
 import com.github.steveice10.packetlib.tcp.TcpClientSession;
 import com.google.common.net.InternetDomainName;
 import lombok.RequiredArgsConstructor;
+import net.earthcomputer.multiconnect.api.MultiConnectAPI;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
@@ -104,7 +105,7 @@ public class JoinListener implements ClientPlayConnectionEvents.Join {
                         }
 
                         ServerStatusInfo info = maxMap.get(serverName);
-                        ServerJoinRequest request = new ServerJoinRequest(serverName, address.getPort());
+                        ServerJoinRequest request = new ServerJoinRequest(serverName, address.getPort(), MultiConnectAPI.instance().getProtocolVersion());
 
                         pistonClient.getMessageTool().setParty(
                                 "Nice little client.",
