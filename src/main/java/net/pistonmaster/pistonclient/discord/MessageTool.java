@@ -12,12 +12,13 @@ import net.pistonmaster.pistonclient.data.ServerJoinRequest;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class MessageTool {
-    protected Core usedCore = null;
+    protected Core core = null;
     @Getter
     @Setter
     private volatile boolean activated = true;
@@ -25,7 +26,7 @@ public class MessageTool {
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public void setStatus(String detail, String state) {
-        if (usedCore == null)
+        if (core == null)
             return;
 
         // Create the Activity
@@ -36,36 +37,35 @@ public class MessageTool {
             // Setting a start time causes an "elapsed" field to appear
             activity.timestamps().setStart(PistonClient.clientStart);
 
-            // Make a "cool" image show up
-            activity.assets().setLargeImage("default");
+            fillData(activity);
 
             // Finally, update the current activity to our activity
-            usedCore.activityManager().updateActivity(activity);
+            core.activityManager().updateActivity(activity);
         }
     }
 
-    public void setParty(String detail, String state, int people, int max, ServerJoinRequest request, Instant join) {
-        if (usedCore == null)
+    public void setParty(String detail, String serverName, int people, int max, ServerJoinRequest request, Instant join) {
+        if (core == null)
             return;
 
         // Create the Activity
         try (Activity activity = new Activity()) {
             activity.setDetails(detail);
-            activity.setState(state);
+            activity.setState(serverName);
 
             activity.timestamps().setStart(join);
 
             activity.party().size().setMaxSize(max);
             activity.party().size().setCurrentSize(people);
 
-            activity.assets().setLargeImage("default");
+            fillData(activity);
 
             // Setting a join secret and a party ID causes an "Ask to Join" button to appear
-            activity.party().setID("server!");
+            activity.party().setID(UUID.randomUUID().toString());
             activity.secrets().setJoinSecret(new Gson().toJson(request));
 
             // Finally, update the current activity to our activity
-            usedCore.activityManager().updateActivity(activity);
+            core.activityManager().updateActivity(activity);
         }
     }
 
@@ -84,15 +84,15 @@ public class MessageTool {
             new Thread(() -> {
                 CreateParams params = new CreateParams();
                 params.setClientID(CLIENT_ID);
-                params.registerEventHandler(new EventAdapter());
+                params.registerEventHandler(new EventAdapter(this));
                 params.setFlags(CreateParams.getDefaultFlags());
-                usedCore = new Core(params);
+                core = new Core(params);
 
                 executor.scheduleAtFixedRate(() -> {
                     if (!isActivated())
                         return;
 
-                    usedCore.runCallbacks();
+                    core.runCallbacks();
                 }, 0, 16, TimeUnit.MILLISECONDS);
             }).start();
         } catch (IOException e) {
@@ -100,5 +100,20 @@ public class MessageTool {
             System.err.println("Error downloading Discord SDK.");
             System.exit(-1);
         }
+    }
+
+    protected void generateServerPartyActivity(Activity activity, ServerJoinRequest request, Instant join) {
+        activity.assets().setLargeImage("default");
+        activity.setDetails("Server");
+        activity.setState("Server");
+        activity.timestamps().setStart(Instant.now());
+        activity.party().size().setMaxSize(1);
+
+        activity.party().setID("server!");
+    }
+
+    private void fillData(Activity activity) {
+        activity.assets().setLargeImage("default");
+        activity.assets().setLargeText("PistonClient");
     }
 }

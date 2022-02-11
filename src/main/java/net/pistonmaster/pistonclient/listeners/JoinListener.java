@@ -152,10 +152,13 @@ public class JoinListener implements ClientPlayConnectionEvents.Join {
         return false;
     }
 
-    private String replaceAll(String str) {
+    public static String replaceAll(String str) {
         for (String option : domainOptions) {
             str = str.replace(option, "");
         }
+
+        if (str.endsWith("."))
+            str = str.substring(0, str.length() - 1);
 
         return str;
     }
