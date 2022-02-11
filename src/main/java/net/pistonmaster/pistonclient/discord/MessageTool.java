@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import de.jcm.discordgamesdk.Core;
 import de.jcm.discordgamesdk.CreateParams;
 import de.jcm.discordgamesdk.activity.Activity;
+import lombok.Getter;
+import lombok.Setter;
 import net.pistonmaster.pistonclient.PistonClient;
 import net.pistonmaster.pistonclient.data.ServerJoinRequest;
 
@@ -16,7 +18,11 @@ import java.util.concurrent.TimeUnit;
 
 public class MessageTool {
     protected Core usedCore = null;
+    @Getter
+    @Setter
     private volatile boolean activated = true;
+    private static final long CLIENT_ID = 806528088812945419L;
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     public void setStatus(String detail, String state) {
         if (usedCore == null)
@@ -76,9 +82,8 @@ public class MessageTool {
             Core.init(discordLibrary);
 
             new Thread(() -> {
-                ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
                 CreateParams params = new CreateParams();
-                params.setClientID(806528088812945419L);
+                params.setClientID(CLIENT_ID);
                 params.registerEventHandler(new EventAdapter());
                 params.setFlags(CreateParams.getDefaultFlags());
                 usedCore = new Core(params);
@@ -95,13 +100,5 @@ public class MessageTool {
             System.err.println("Error downloading Discord SDK.");
             System.exit(-1);
         }
-    }
-
-    public boolean isActivated() {
-        return activated;
-    }
-
-    public void setActivated(boolean activated) {
-        this.activated = activated;
     }
 }

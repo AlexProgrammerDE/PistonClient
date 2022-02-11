@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.pistonmaster.pistonclient.PistonClient;
-import net.pistonmaster.pistonclient.discord.MessageTool;
 
 import java.awt.*;
 
