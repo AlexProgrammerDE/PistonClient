@@ -14,6 +14,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.pistonmaster.pistonclient.data.ServerJoinRequest;
 
+import java.util.Objects;
+
 public class JoinWarningScreen extends Screen {
     private static final Text HEADER;
 
@@ -45,6 +47,7 @@ public class JoinWarningScreen extends Screen {
         super.init();
         this.lines = MultilineText.create(this.textRenderer, message, this.width - 50);
         int var10000 = this.lines.count() + 1;
+        Objects.requireNonNull(this.textRenderer);
         int i = var10000 * 9 * 2;
 
         this.addDrawableChild(new ButtonWidget(this.width / 2 - 155, 100 + i, 150, 20, ScreenTexts.PROCEED, buttonWidget -> ConnectScreen.connect(this.parent, MinecraftClient.getInstance(), ServerAddress.parse(request.format()), new ServerInfo("server", request.format(), false))));
@@ -56,6 +59,7 @@ public class JoinWarningScreen extends Screen {
         this.renderBackgroundTexture(0);
         drawTextWithShadow(matrices, this.textRenderer, HEADER, 25, 30, 16777215);
         MultilineText var10000 = this.lines;
+        Objects.requireNonNull(this.textRenderer);
         var10000.drawWithShadow(matrices, 25, 70, 9 * 2, 16777215);
         super.render(matrices, mouseX, mouseY, delta);
     }
