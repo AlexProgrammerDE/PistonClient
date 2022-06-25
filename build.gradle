@@ -76,7 +76,7 @@ dependencies {
 
     modImplementation include("net.kyori:adventure-platform-fabric:5.2.1")
 
-    modImplementation runtime('com.github.JnCrMx:discord-game-sdk4j:0.5.4')
+    modImplementation runtime('com.github.JnCrMx:discord-game-sdk4j:0.5.5')
     modImplementation runtime('commons-validator:commons-validator:1.7')
     modImplementation runtime("com.github.GeyserMC:MCProtocolLib:1.18-2")
 
