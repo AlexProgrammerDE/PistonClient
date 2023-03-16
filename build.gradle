@@ -63,7 +63,7 @@ dependencies {
 
     modImplementation include("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
 
-    modImplementation include("com.terraformersmc:modmenu:3.0.1")
+    modImplementation include("com.terraformersmc:modmenu:3.2.5")
     modImplementation include("io.github.cottonmc:LibGui:5.3.0+1.18")
 
     modImplementation include('net.earthcomputer.multiconnect:multiconnect-api:1.5.10') {
