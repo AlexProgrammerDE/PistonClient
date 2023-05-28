@@ -80,7 +80,7 @@ dependencies {
     modImplementation runtime('commons-validator:commons-validator:1.7')
     modImplementation runtime("com.github.GeyserMC:MCProtocolLib:1.18-2")
 
-    annotationProcessor modCompileOnly('org.projectlombok:lombok:1.18.24')
+    annotationProcessor modCompileOnly('org.projectlombok:lombok:1.18.28')
 
     /*
     modImplementation include("com.github.cabaletta:baritone:v1.6.3") {
