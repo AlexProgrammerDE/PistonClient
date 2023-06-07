@@ -78,7 +78,7 @@ dependencies {
 
     modImplementation runtime('com.github.JnCrMx:discord-game-sdk4j:0.5.4')
     modImplementation runtime('commons-validator:commons-validator:1.7')
-    modImplementation runtime("com.github.GeyserMC:MCProtocolLib:1.18-2")
+    modImplementation runtime("com.github.GeyserMC:MCProtocolLib:1.20-1")
 
     annotationProcessor modCompileOnly('org.projectlombok:lombok:1.18.24')
 
